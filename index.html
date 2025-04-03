@@ -1,0 +1,320 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productivity App</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    #navbar button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+    section { display: none; margin-top: 30px; }
+    ul { list-style-type: none; padding: 0; }
+    li { background-color: #f2f2f2; padding: 10px; margin: 5px auto; width: 90%; max-width: 400px; border-radius: 5px; }
+    .completata { text-decoration: line-through; color: gray; }
+    #display-timer { font-size: 36px; margin: 20px 0; }
+    #display { width: 250px; font-size: 20px; padding: 10px; text-align: right; margin-bottom: 10px; }
+    #calcolatrice button { width: 60px; height: 50px; font-size: 18px; margin: 2px; }
+    #calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 400px; margin: auto; }
+    .giorno { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .oggi { background-color: #c8e6c9; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div id="navbar">
+  <button onclick="mostraSezione('todo')">📝 To-Do</button>
+  <button onclick="mostraSezione('pomodoro')">⏱️ Pomodoro</button>
+  <button onclick="mostraSezione('calcolatrice')">🧮 Calcolatrice</button>
+  <button onclick="mostraSezione('calendario')">📅 Calendario</button>
+  <button onclick="mostraSezione('ideaboard')">💡 Idee</button>
+</div>
+
+<section id="sezione-todo">
+  <h2>📋 To-Do List</h2>
+  <input type="text" id="attivita" placeholder="Scrivi un'attività">
+  <input type="date" id="scadenza">
+  <select id="categoria">
+    <option value="">Senza categoria</option>
+    <option value="💼 Lavoro">💼 Lavoro</option>
+    <option value="🏠 Casa">🏠 Casa</option>
+    <option value="🎓 Studio">🎓 Studio</option>
+    <option value="⚡ Urgente">⚡ Urgente</option>
+  </select>
+  <button onclick="aggiungiAttivita()">Aggiungi</button>
+  <ul id="lista-attivita"></ul>
+</section>
+
+<section id="sezione-pomodoro">
+  <h2>⏱️ Timer Pomodoro</h2>
+  <input type="number" id="minutiInput" value="25" min="0"> Minuti
+  <input type="number" id="secondiInput" value="0" min="0" max="59"> Secondi
+  <p id="display-timer">25:00</p>
+  <button onclick="avviaTimer()">Avvia</button>
+  <button onclick="fermaTimer()">Ferma</button>
+</section>
+
+<section id="sezione-calcolatrice">
+  <h2>🧮 Calcolatrice Scientifica</h2>
+  <input type="text" id="display" readonly>
+  <div id="calcolatrice">
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="appendToDisplay('(')">(</button>
+    <button onclick="appendToDisplay(')')">)</button>
+    <button onclick="appendToDisplay('/')">÷</button><br>
+    <button onclick="appendToDisplay('7')">7</button>
+    <button onclick="appendToDisplay('8')">8</button>
+    <button onclick="appendToDisplay('9')">9</button>
+    <button onclick="appendToDisplay('*')">×</button><br>
+    <button onclick="appendToDisplay('4')">4</button>
+    <button onclick="appendToDisplay('5')">5</button>
+    <button onclick="appendToDisplay('6')">6</button>
+    <button onclick="appendToDisplay('-')">−</button><br>
+    <button onclick="appendToDisplay('1')">1</button>
+    <button onclick="appendToDisplay('2')">2</button>
+    <button onclick="appendToDisplay('3')">3</button>
+    <button onclick="appendToDisplay('+')">+</button><br>
+    <button onclick="appendToDisplay('0')">0</button>
+    <button onclick="appendToDisplay('.')">.</button>
+    <button onclick="calcola()">=</button>
+    <button onclick="appendToDisplay('**')">^</button><br>
+    <button onclick="appendToDisplay('Math.sqrt(')">√</button>
+    <button onclick="appendToDisplay('Math.sin(')">sin</button>
+    <button onclick="appendToDisplay('Math.cos(')">cos</button>
+    <button onclick="appendToDisplay('Math.PI')">π</button>
+  </div>
+  <ul id="cronologia"></ul>
+</section>
+
+<section id="sezione-calendario">
+  <h2>📅 Calendario Mensile</h2>
+  <div id="calendario"></div>
+</section>
+
+<section id="sezione-ideaboard">
+  <h2>💡 Idea Board</h2>
+  <input type="text" id="titolo-idea" placeholder="Titolo">
+  <textarea id="testo-idea" rows="4" cols="40" placeholder="Scrivi la tua idea..."></textarea>
+  <br>
+  <button onclick="salvaIdea()">Salva</button>
+  <ul id="lista-idee"></ul>
+</section>
+
+<script>
+window.mostraSezione = function(nome) {
+  const sezioni = document.querySelectorAll("section");
+  sezioni.forEach(sec => sec.style.display = "none");
+  const selezionata = document.getElementById("sezione-" + nome);
+  if (selezionata) selezionata.style.display = "block";
+}
+</script>
+<script>
+window.aggiungiAttivita = function () {
+  const testo = document.getElementById("attivita").value.trim();
+  const scadenza = document.getElementById("scadenza").value;
+  const categoria = document.getElementById("categoria").value;
+  if (!testo) return;
+
+  const nuova = { testo, scadenza, categoria };
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  attivita.push(nuova);
+  localStorage.setItem("attivita", JSON.stringify(attivita));
+
+  document.getElementById("attivita").value = "";
+  document.getElementById("scadenza").value = "";
+  document.getElementById("categoria").value = "";
+
+  caricaAttivita();
+};
+
+window.caricaAttivita = function () {
+  const lista = document.getElementById("lista-attivita");
+  lista.innerHTML = "";
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+
+  attivita.forEach((dati) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${dati.testo}</strong><br>
+      <small>Scadenza: ${dati.scadenza || "Nessuna"}</small><br>
+      <span style="color: green;">${dati.categoria || ""}</span>`;
+    li.addEventListener("click", () => li.classList.toggle("completata"));
+    li.addEventListener("dblclick", () => {
+      const index = attivita.indexOf(dati);
+      if (index !== -1) {
+        attivita.splice(index, 1);
+        localStorage.setItem("attivita", JSON.stringify(attivita));
+        caricaAttivita();
+      }
+    });
+    lista.appendChild(li);
+  });
+};
+</script><script>
+let timer;
+let tempo = 1500;
+
+window.avviaTimer = function () {
+  const min = parseInt(document.getElementById("minutiInput").value) || 0;
+  const sec = parseInt(document.getElementById("secondiInput").value) || 0;
+  tempo = min * 60 + sec;
+
+  if (timer) clearInterval(timer);
+  timer = setInterval(() => {
+    if (tempo <= 0) {
+      clearInterval(timer);
+      if (Notification.permission === "granted") {
+        new Notification("⏱️ Timer Pomodoro", {
+          body: "Tempo scaduto!",
+          icon: "icon-192.png"
+        });
+      }
+      return;
+    }
+    tempo--;
+    const m = Math.floor(tempo / 60);
+    const s = tempo % 60;
+    document.getElementById("display-timer").innerText =
+      m.toString().padStart(2, "0") + ":" + s.toString().padStart(2, "0");
+  }, 1000);
+};
+
+window.fermaTimer = function () {
+  clearInterval(timer);
+};
+</script><script>
+window.appendToDisplay = function (val) {
+  document.getElementById("display").value += val;
+};
+
+window.clearDisplay = function () {
+  document.getElementById("display").value = "";
+};
+
+window.calcola = function () {
+  try {
+    const input = document.getElementById("display").value;
+    const risultato = eval(input);
+    document.getElementById("display").value = risultato;
+    const cronologia = document.getElementById("cronologia");
+    const li = document.createElement("li");
+    li.textContent = input + " = " + risultato;
+    cronologia.prepend(li);
+  } catch (e) {
+    alert("Espressione non valida");
+  }
+};
+</script><script>
+window.salvaIdea = function () {
+  const titolo = document.getElementById("titolo-idea").value.trim();
+  const testo = document.getElementById("testo-idea").value.trim();
+  if (!titolo || !testo) return;
+
+  const nuova = { titolo, testo };
+  const idee = JSON.parse(localStorage.getItem("idee")) || [];
+  idee.push(nuova);
+  localStorage.setItem("idee", JSON.stringify(idee));
+
+  document.getElementById("titolo-idea").value = "";
+  document.getElementById("testo-idea").value = "";
+
+  caricaIdee();
+};
+
+window.caricaIdee = function () {
+  const lista = document.getElementById("lista-idee");
+  lista.innerHTML = "";
+  const idee = JSON.parse(localStorage.getItem("idee")) || [];
+
+  idee.forEach((dati, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${dati.titolo}</strong><br>${dati.testo}`;
+    li.addEventListener("dblclick", () => {
+      idee.splice(index, 1);
+      localStorage.setItem("idee", JSON.stringify(idee));
+      caricaIdee();
+    });
+    lista.appendChild(li);
+  });
+};
+</script><script>
+window.generaCalendario = function () {
+  const calendario = document.getElementById("calendario");
+  if (!calendario) return;
+
+  const oggi = new Date();
+  const meseCorrente = oggi.getMonth();
+  const annoCorrente = oggi.getFullYear();
+
+  const inizioMese = new Date(annoCorrente, meseCorrente, 1);
+  const fineMese = new Date(annoCorrente, meseCorrente + 1, 0);
+  const giorniTotali = fineMese.getDate();
+  const primoGiornoSettimana = inizioMese.getDay(); // 0 = Domenica
+
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+
+  calendario.innerHTML = "";
+
+  for (let i = 0; i < primoGiornoSettimana; i++) {
+    const cellaVuota = document.createElement("div");
+    calendario.appendChild(cellaVuota);
+  }
+
+  for (let giorno = 1; giorno <= giorniTotali; giorno++) {
+    const dataStr = new Date(annoCorrente, meseCorrente, giorno).toISOString().split("T")[0];
+    const haAttivita = attivita.some(a => a.scadenza === dataStr);
+
+    const cella = document.createElement("div");
+    cella.className = "giorno";
+    cella.textContent = giorno;
+
+    if (giorno === oggi.getDate()) {
+      cella.classList.add("oggi");
+    }
+
+    if (haAttivita) {
+      cella.style.backgroundColor = "#ffe082"; // evidenzia
+      cella.style.cursor = "pointer";
+      cella.addEventListener("click", () => mostraAttivitaDelGiorno(dataStr));
+    }
+
+    calendario.appendChild(cella);
+  }
+};
+
+window.mostraAttivitaDelGiorno = function (data) {
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  const elenco = attivita.filter(a => a.scadenza === data);
+  const testo = elenco.map(a => `• ${a.testo} (${a.categoria || "Nessuna categoria"})`).join("\n");
+
+  alert(`Attività per il ${data}:
+
+${testo || "Nessuna attività"}`);
+};
+</script><script>
+window.controllaPromemoria = function () {
+  const oggi = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  const daFareOggi = attivita.filter(item => item.scadenza === oggi);
+
+  if (daFareOggi.length > 0 && Notification.permission === "granted") {
+    new Notification("📝 Promemoria attività", {
+      body: `Hai ${daFareOggi.length} attività da fare oggi!`,
+      icon: "icon-192.png"
+    });
+  }
+};
+
+// Esegui il controllo promemoria all’avvio
+window.onload = () => {
+  window.mostraSezione("todo");
+  window.caricaAttivita();
+  window.caricaIdee();
+  if ("Notification" in window) Notification.requestPermission();
+  window.generaCalendario();
+  window.controllaPromemoria(); // nuovo
+};
+</script>
+</body>
+</html>
