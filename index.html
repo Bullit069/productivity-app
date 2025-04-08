@@ -1,0 +1,520 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<style>
+  body {
+    background: linear-gradient(to bottom, #1f1f1f, #2b2b2b);
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+  }
+
+  h2 {
+    color: #ffc107;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+  }
+
+  #navbar {
+    text-align: center;
+    margin-bottom: 20px;
+    background: #2c2c2c;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #111;
+  }
+
+  #navbar button {
+    background-color: #444;
+    color: #fff;
+    border: 1px solid #666;
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+
+  #navbar button:hover {
+    background-color: #666;
+    transform: scale(1.05);
+  }
+
+  section {
+    display: none;
+    background: #2e2e2e;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+    margin-bottom: 20px;
+  }
+
+  input, select, textarea {
+    background-color: #1c1c1c;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 6px;
+    width: 100%;
+  }
+
+  ul li {
+    background-color: #3a3a3a;
+    border-left: 5px solid #2196f3;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  .giorno {
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 8px;
+    color: #f0f0f0;
+    font-size: 14px;
+  }
+
+  .giorno:hover {
+    background-color: #3d3d3d;
+    cursor: pointer;
+  }
+
+  .oggi {
+    background-color: #455a64 !important;
+    border: 2px solid #ffc107 !important;
+  }
+
+  #display {
+    width: 100%;
+    font-size: 20px;
+    padding: 10px;
+    background-color: #111;
+    border: 2px solid #2196f3;
+    color: #fff;
+  }
+
+  #calcolatrice button {
+    width: 60px;
+    height: 50px;
+    font-size: 18px;
+    margin: 2px;
+    background-color: #2f2f2f;
+    color: #f1f1f1;
+    border: 1px solid #444;
+    border-radius: 6px;
+  }
+
+  #calcolatrice button:hover {
+    background-color: #444;
+  }
+</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productivity App</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    #navbar button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+    section { display: none; margin-top: 30px; }
+    ul { list-style-type: none; padding: 0; }
+    li { background-color: #f2f2f2; padding: 10px; margin: 5px auto; width: 90%; max-width: 400px; border-radius: 5px; }
+    .completata { text-decoration: line-through; color: gray; }
+    #display-timer { font-size: 36px; margin: 20px 0; }
+    #display { width: 250px; font-size: 20px; padding: 10px; text-align: right; margin-bottom: 10px; }
+    #calcolatrice button { width: 60px; height: 50px; font-size: 18px; margin: 2px; }
+    #calendario { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; max-width: 400px; margin: auto; }
+    .giorno { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .oggi { background-color: #c8e6c9; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div id="navbar">
+  <button onclick="mostraSezione('home')">🏠 Home</button>
+  <button onclick="mostraSezione('todo')">📝 To-Do</button>
+  <button onclick="mostraSezione('pomodoro')">⏱️ Pomodoro</button>
+  <button onclick="mostraSezione('calcolatrice')">🧮 Calcolatrice</button>
+  <button onclick="mostraSezione('calendario')">📅 Calendario</button>
+  <button onclick="mostraSezione('ideaboard')">💡 Idee</button>
+</div>
+
+<section id="sezione-home">
+  <h2 id="saluto">Ciao!</h2>
+  <p id="frase-motivazionale">Preparati a dare il massimo oggi.</p>
+</section>
+
+<section id="sezione-todo">
+  <h2>📋 To-Do List</h2>
+  <input type="text" id="attivita" placeholder="Scrivi un'attività">
+  <input type="date" id="scadenza">
+  <select id="categoria">
+    <option value="">Senza categoria</option>
+    <option value="💼 Lavoro">💼 Lavoro</option>
+    <option value="🏠 Casa">🏠 Casa</option>
+    <option value="🎓 Studio">🎓 Studio</option>
+    <option value="⚡ Urgente">⚡ Urgente</option>
+  </select>
+  <button onclick="aggiungiAttivita()">Aggiungi</button>
+  <ul id="lista-attivita"></ul>
+</section>
+
+<section id="sezione-pomodoro">
+  <h2>Timer Pomodoro ⏱️</h2>
+  <div id="timer-inputs" style="display: flex; gap: 10px; max-width: 300px; margin: auto;">
+    <input id="minutiInput" type="number" placeholder="Minuti" style="flex: 1; padding: 8px;">
+    <input id="secondiInput" type="number" placeholder="Secondi" style="flex: 1; padding: 8px;">
+  </div>
+  <div style="margin-top: 10px;">
+    <button onclick="avviaTimer()">Avvia</button>
+    <button onclick="fermaTimer()">Ferma</button>
+  </div>
+  <div id="display-timer" style="font-size: 32px; margin-top: 15px;">00:00</div>
+</section>
+
+<section id="sezione-calcolatrice">
+  <h2>🧮 Calcolatrice Scientifica</h2>
+  <input type="text" id="display" readonly>
+  <div id="calcolatrice">
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="appendToDisplay('(')">(</button>
+    <button onclick="appendToDisplay(')')">)</button>
+    <button onclick="appendToDisplay('/')">÷</button><br>
+    <button onclick="appendToDisplay('7')">7</button>
+    <button onclick="appendToDisplay('8')">8</button>
+    <button onclick="appendToDisplay('9')">9</button>
+    <button onclick="appendToDisplay('*')">×</button><br>
+    <button onclick="appendToDisplay('4')">4</button>
+    <button onclick="appendToDisplay('5')">5</button>
+    <button onclick="appendToDisplay('6')">6</button>
+    <button onclick="appendToDisplay('-')">−</button><br>
+    <button onclick="appendToDisplay('1')">1</button>
+    <button onclick="appendToDisplay('2')">2</button>
+    <button onclick="appendToDisplay('3')">3</button>
+    <button onclick="appendToDisplay('+')">+</button><br>
+    <button onclick="appendToDisplay('0')">0</button>
+    <button onclick="appendToDisplay('.')">.</button>
+    <button onclick="calcola()">=</button>
+    <button onclick="appendToDisplay('**')">^</button><br>
+    <button onclick="appendToDisplay('Math.sqrt(')">√</button>
+    <button onclick="appendToDisplay('Math.sin(')">sin</button>
+    <button onclick="appendToDisplay('Math.cos(')">cos</button>
+    <button onclick="appendToDisplay('Math.PI')">π</button>
+  </div>
+  <ul id="cronologia"></ul>
+</section>
+
+<section id="sezione-calendario">
+  <h2>📅 Calendario Mensile</h2>
+  <div id="calendario"></div>
+</section>
+
+<section id="sezione-ideaboard">
+  <h2>💡 Idea Board</h2>
+  <input type="text" id="titolo-idea" placeholder="Titolo">
+  <textarea id="testo-idea" rows="4" cols="40" placeholder="Scrivi la tua idea..."></textarea>
+  <br>
+  <button onclick="salvaIdea()">Salva</button>
+  <ul id="lista-idee"></ul>
+</section>
+
+<script>
+window.mostraSezione = function(nome) {
+  const sezioni = document.querySelectorAll("section");
+  sezioni.forEach(sec => sec.style.display = "none");
+  const selezionata = document.getElementById("sezione-" + nome);
+  if (selezionata) selezionata.style.display = "block";
+}
+</script>
+<script>
+window.mostraMotivazione = function () {
+  const ora = new Date().getHours();
+  const saluto = ora < 12 ? "Buongiorno" : (ora < 18 ? "Buon pomeriggio" : "Buonasera");
+  const frasi = [
+    "Ogni giorno è una nuova opportunità.",
+    "Non smettere mai di credere in te stesso.",
+    "Anche un piccolo passo è un passo avanti.",
+    "La costanza batte il talento.",
+    "Il successo è la somma di piccoli sforzi ripetuti giorno dopo giorno.",
+    "Agisci con determinazione, non aspettare la motivazione.",
+    "C'è sempre un motivo per ricominciare.",
+    "Se puoi sognarlo, puoi farlo.",
+    "Fallo oggi, il domani non è garantito."
+  ];
+  const frase = frasi[Math.floor(Math.random() * frasi.length)];
+
+  document.getElementById("saluto").innerText = saluto + " 👋";
+  document.getElementById("frase-motivazionale").innerText = frase;
+};
+</script><script>
+window.aggiungiAttivita = function () {
+  const testo = document.getElementById("attivita").value.trim();
+  const scadenza = document.getElementById("scadenza").value;
+  const categoria = document.getElementById("categoria").value;
+  if (!testo) return;
+
+  const nuova = { testo, scadenza, categoria };
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  attivita.push(nuova);
+  localStorage.setItem("attivita", JSON.stringify(attivita));
+
+  document.getElementById("attivita").value = "";
+  document.getElementById("scadenza").value = "";
+  document.getElementById("categoria").value = "";
+
+  caricaAttivita();
+};
+
+window.caricaAttivita = function () {
+  const lista = document.getElementById("lista-attivita");
+  lista.innerHTML = "";
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+
+  attivita.forEach((dati) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${dati.testo}</strong><br>
+      <small>Scadenza: ${dati.scadenza || "Nessuna"}</small><br>
+      <span style="color: green;">${dati.categoria || ""}</span>`;
+    li.addEventListener("click", () => li.classList.toggle("completata"));
+    li.addEventListener("dblclick", () => {
+      const index = attivita.indexOf(dati);
+      if (index !== -1) {
+        attivita.splice(index, 1);
+        localStorage.setItem("attivita", JSON.stringify(attivita));
+        caricaAttivita();
+      }
+    });
+    lista.appendChild(li);
+  });
+};
+</script><script>
+let timer;
+
+window.avviaTimer = function () {
+  const min = parseInt(document.getElementById("minutiInput").value) || 0;
+  const sec = parseInt(document.getElementById("secondiInput").value) || 0;
+  const durata = min * 60 + sec;
+  const inizio = new Date().getTime();
+
+  localStorage.setItem("pomodoro_inizio", inizio);
+  localStorage.setItem("pomodoro_durata", durata);
+
+  aggiornaTimer();
+  if (timer) clearInterval(timer);
+  timer = setInterval(aggiornaTimer, 1000);
+};
+
+window.fermaTimer = function () {
+  clearInterval(timer);
+  localStorage.removeItem("pomodoro_inizio");
+  localStorage.removeItem("pomodoro_durata");
+  document.getElementById("display-timer").innerText = "00:00";
+};
+
+function aggiornaTimer() {
+  const inizio = parseInt(localStorage.getItem("pomodoro_inizio"));
+  const durata = parseInt(localStorage.getItem("pomodoro_durata"));
+  if (!inizio || !durata) return;
+
+  const ora = new Date().getTime();
+  const trascorso = Math.floor((ora - inizio) / 1000);
+  const rimanente = durata - trascorso;
+
+  if (rimanente <= 0) {
+    clearInterval(timer);
+    localStorage.removeItem("pomodoro_inizio");
+    localStorage.removeItem("pomodoro_durata");
+    document.getElementById("display-timer").innerText = "00:00";
+
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("⏱️ Timer Pomodoro", {
+        body: "Tempo scaduto!",
+        icon: "icon-192.png"
+      });
+    }
+    return;
+  }
+
+  const m = Math.floor(rimanente / 60);
+  const s = rimanente % 60;
+  document.getElementById("display-timer").innerText =
+    m.toString().padStart(2, "0") + ":" + s.toString().padStart(2, "0");
+}
+
+// Al caricamento, ripristina il timer se era attivo
+window.addEventListener("load", () => {
+  if (localStorage.getItem("pomodoro_inizio")) {
+    aggiornaTimer();
+    timer = setInterval(aggiornaTimer, 1000);
+  }
+});
+</script><script>
+window.appendToDisplay = function (val) {
+  document.getElementById("display").value += val;
+};
+
+window.clearDisplay = function () {
+  document.getElementById("display").value = "";
+};
+
+window.calcola = function () {
+  try {
+    const input = document.getElementById("display").value;
+    const risultato = eval(input);
+    document.getElementById("display").value = risultato;
+    const cronologia = document.getElementById("cronologia");
+    const li = document.createElement("li");
+    li.textContent = input + " = " + risultato;
+    cronologia.prepend(li);
+  } catch (e) {
+    alert("Espressione non valida");
+  }
+};
+</script><script>
+window.salvaIdea = function () {
+  const titolo = document.getElementById("titolo-idea").value.trim();
+  const testo = document.getElementById("testo-idea").value.trim();
+  if (!titolo || !testo) return;
+
+  const nuova = { titolo, testo };
+  const idee = JSON.parse(localStorage.getItem("idee")) || [];
+  idee.push(nuova);
+  localStorage.setItem("idee", JSON.stringify(idee));
+
+  document.getElementById("titolo-idea").value = "";
+  document.getElementById("testo-idea").value = "";
+
+  caricaIdee();
+};
+
+window.caricaIdee = function () {
+  const lista = document.getElementById("lista-idee");
+  lista.innerHTML = "";
+  const idee = JSON.parse(localStorage.getItem("idee")) || [];
+
+  idee.forEach((dati, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${dati.titolo}</strong><br>${dati.testo}`;
+    li.addEventListener("dblclick", () => {
+      idee.splice(index, 1);
+      localStorage.setItem("idee", JSON.stringify(idee));
+      caricaIdee();
+    });
+    lista.appendChild(li);
+  });
+};
+</script><script>
+let meseCorrente = new Date().getMonth();
+let annoCorrente = new Date().getFullYear();
+
+function cambiaMese(delta) {
+  meseCorrente += delta;
+  if (meseCorrente < 0) {
+    meseCorrente = 11;
+    annoCorrente--;
+  } else if (meseCorrente > 11) {
+    meseCorrente = 0;
+    annoCorrente++;
+  }
+  generaCalendario();
+}
+
+function formattaDataLocale(data) {
+  const offset = data.getTimezoneOffset() * 60000;
+  const localeISO = new Date(data.getTime() - offset).toISOString().split("T")[0];
+  return localeISO;
+}
+
+function generaCalendario() {
+  const calendario = document.getElementById("calendario");
+  if (!calendario) return;
+
+  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  const oggi = new Date();
+  const meseInizio = new Date(annoCorrente, meseCorrente, 1);
+  const meseFine = new Date(annoCorrente, meseCorrente + 1, 0);
+  const giorniTotali = meseFine.getDate();
+  const primoGiornoSettimana = (meseInizio.getDay() + 6) % 7;
+
+  calendario.innerHTML = "";
+
+  const intestazione = document.createElement("div");
+  intestazione.style.gridColumn = "span 7";
+  intestazione.innerHTML = `
+    <button onclick="cambiaMese(-1)">◀️</button>
+    <strong>${meseInizio.toLocaleString("it-IT", { month: "long", year: "numeric" })}</strong>
+    <button onclick="cambiaMese(1)">▶️</button>
+  `;
+  intestazione.style.marginBottom = "10px";
+  calendario.appendChild(intestazione);
+
+  const giorniSettimana = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+  giorniSettimana.forEach(giorno => {
+    const cella = document.createElement("div");
+    cella.textContent = giorno;
+    cella.style.fontWeight = "bold";
+    calendario.appendChild(cella);
+  });
+
+  for (let i = 0; i < primoGiornoSettimana; i++) {
+    const cellaVuota = document.createElement("div");
+    calendario.appendChild(cellaVuota);
+  }
+
+  for (let giorno = 1; giorno <= giorniTotali; giorno++) {
+    const data = new Date(annoCorrente, meseCorrente, giorno);
+    const dataStr = formattaDataLocale(data);
+    const attivitaGiorno = attivita.filter(a => a.scadenza === dataStr);
+
+    const cella = document.createElement("div");
+    cella.className = "giorno";
+    cella.innerHTML = `<strong>${giorno}</strong>`;
+
+    if (
+      giorno === oggi.getDate() &&
+      meseCorrente === oggi.getMonth() &&
+      annoCorrente === oggi.getFullYear()
+    ) {
+      cella.classList.add("oggi");
+    }
+
+    if (attivitaGiorno.length > 0) {
+      const elenco = document.createElement("ul");
+      elenco.style.fontSize = "12px";
+      attivitaGiorno.forEach(att => {
+        const li = document.createElement("li");
+        li.textContent = att.testo;
+        elenco.appendChild(li);
+      });
+      cella.appendChild(elenco);
+      cella.style.backgroundColor = "#fff3cd";
+    }
+
+    cella.addEventListener("click", () => {
+      mostraSezione("todo");
+      const inputData = document.getElementById("dataScadenza");
+      if (inputData) {
+        inputData.value = dataStr;
+        inputData.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+    calendario.appendChild(cella);
+  }
+}
+
+window.addEventListener("load", () => {
+  generaCalendario();
+});
+</script>
+
+<footer style="text-align: center; padding: 20px 10px; color: white; font-size: 14px; margin-top: 40px;">
+  Designed by Lex e Traccitto Paolo Nicola
+</footer>
+
+</body>
+</html>
