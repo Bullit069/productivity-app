@@ -778,5 +778,23 @@ window.addEventListener("load", () => {
   generaCalendarioStatico();
 });
 </script>
+<script>
+window.addEventListener("load", () => {
+  try {
+    mostraSezione("home");
+    aggiornaHome?.();
+    caricaImpostazioni?.();
+    avviaNotificaOraria?.();
+    caricaAttivita?.();
+    aggiornaLista?.();
+    caricaIdee?.();
+    aggiornaIdeaBoard?.();
+    aggiornaTimer?.();
+    generaCalendarioStatico?.();
+  } catch (e) {
+    console.error("Errore nel caricamento:", e);
+  }
+});
+</script>
 </body>
 </html>
