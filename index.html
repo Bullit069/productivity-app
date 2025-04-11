@@ -131,6 +131,33 @@
     .giorno { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
     .oggi { background-color: #c8e6c9; font-weight: bold; }
   </style>
+<style>
+#calcolatrice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  max-width: 320px;
+  margin: 10px auto;
+}
+#calcolatrice button {
+  flex: 1 0 20%;
+  min-width: 55px;
+  height: 45px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #2f2f2f;
+  color: white;
+  border: 1px solid #555;
+}
+@media (max-width: 400px) {
+  #calcolatrice button {
+    flex: 1 0 28%;
+    font-size: 14px;
+    height: 42px;
+  }
+}
+</style>
 </head>
 <body>
 <style>
@@ -795,6 +822,27 @@ window.addEventListener("load", () => {
     console.error("Errore nel caricamento:", e);
   }
 });
+</script>
+<script>
+function aggiornaHome() {
+  const nome = localStorage.getItem("username") || "amico";
+  const saluto = new Date().getHours() < 18 ? "Buongiorno" : "Buonasera";
+  const frasi = [
+    "Credi in te stesso.",
+    "Un passo alla volta.",
+    "Ogni giorno è una nuova occasione.",
+    "Non mollare, sei più forte di quanto pensi.",
+    "Fai oggi qualcosa che il tuo domani ringrazierà.",
+    "La costanza è la chiave del cambiamento.",
+    "Ogni piccola azione conta.",
+    "Sii orgoglioso di ogni tuo progresso."
+  ];
+  const frase = frasi[Math.floor(Math.random() * frasi.length)];
+  const motivazione = document.getElementById("motivazione");
+  if (motivazione) {
+    motivazione.innerHTML = `<h2>${saluto}, ${nome}!</h2><p>${frase}</p>`;
+  }
+}
 </script>
 </body>
 </html>
