@@ -506,6 +506,7 @@ function aggiornaTimer() {
 
 // Al caricamento, ripristina il timer se era attivo
 window.addEventListener("load", () => {
+  caricaAttivita();
   mostraSezione("home");
   aggiornaHome();
   if (localStorage.getItem("pomodoro_inizio")) {
@@ -665,6 +666,7 @@ function generaCalendarioStatico() {
 }
 
 window.addEventListener("load", () => {
+  caricaAttivita();
   generaCalendarioStatico();
 });
 </script>
@@ -770,11 +772,13 @@ function generaCalendarioStatico() {
 }
 
 window.addEventListener("load", () => {
+  caricaAttivita();
   generaCalendarioStatico();
 });
 </script>
 <script>
 window.addEventListener("load", () => {
+  caricaAttivita();
   try {
     mostraSezione("home");
     aggiornaHome?.();
