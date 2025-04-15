@@ -176,6 +176,62 @@ body.scuro textarea {
   border: 1px solid #444;
 }
 </style>
+<style>
+#calcolatrice {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 340px;
+  margin: 10px auto;
+}
+#calcolatrice button {
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  background-color: #2f2f2f;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 6px;
+}
+#calcolatrice input {
+  grid-column: span 5;
+  padding: 8px;
+  font-size: 20px;
+  background-color: #1a1a1a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+</style>
+<style>
+#calcolatrice {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 360px;
+  margin: 10px auto;
+}
+#calcolatrice button {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  background-color: #2f2f2f;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 5px;
+}
+#calcolatrice input {
+  grid-column: span 5;
+  padding: 8px;
+  font-size: 20px;
+  background-color: #1a1a1a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+</style>
 </head>
 <body>
 <style>
@@ -301,61 +357,7 @@ function caricaImpostazioni() {
   <div id="display-timer" style="font-size: 32px; margin-top: 15px;">00:00</div>
 </section>
 
-<section id="sezione-calcolatrice">
-  <h2>🧮 Calcolatrice Scientifica</h2>
-  <input type="text" id="display" readonly>
-  <div style="text-align: center; margin: 10px 0;">
-  <button onclick="toggleCalcolatrice()">🔁 Cambia modalità calcolatrice</button>
-</div>
-<script>
-function toggleCalcolatrice() {
-  const container = document.getElementById("calcolatrice");
-  const scientifica = container.dataset.scientifica === "true";
-  container.innerHTML = "";
-  container.dataset.scientifica = (!scientifica).toString();
-  const base = ["7", "8", "9", "/", "C",
-                "4", "5", "6", "*", "(",
-                "1", "2", "3", "-", ")",
-                "0", ".", "=", "+", "π"];
-  const avanzata = ["sqrt", "pow", "sin", "cos", "tan"];
-  const pulsanti = scientifica ? base : base.concat(avanzata);
 
-  pulsanti.forEach(p => {
-    const btn = document.createElement("button");
-    btn.textContent = p;
-    btn.onclick = () => appendToDisplay(p);
-    container.appendChild(btn);
-  });
-}
-</script>
-<div id="calcolatrice" data-scientifica="true">
-    <button onclick="clearDisplay()">C</button>
-    <button onclick="appendToDisplay('(')">(</button>
-    <button onclick="appendToDisplay(')')">)</button>
-    <button onclick="appendToDisplay('/')">÷</button><br>
-    <button onclick="appendToDisplay('7')">7</button>
-    <button onclick="appendToDisplay('8')">8</button>
-    <button onclick="appendToDisplay('9')">9</button>
-    <button onclick="appendToDisplay('*')">×</button><br>
-    <button onclick="appendToDisplay('4')">4</button>
-    <button onclick="appendToDisplay('5')">5</button>
-    <button onclick="appendToDisplay('6')">6</button>
-    <button onclick="appendToDisplay('-')">−</button><br>
-    <button onclick="appendToDisplay('1')">1</button>
-    <button onclick="appendToDisplay('2')">2</button>
-    <button onclick="appendToDisplay('3')">3</button>
-    <button onclick="appendToDisplay('+')">+</button><br>
-    <button onclick="appendToDisplay('0')">0</button>
-    <button onclick="appendToDisplay('.')">.</button>
-    <button onclick="calcola()">=</button>
-    <button onclick="appendToDisplay('**')">^</button><br>
-    <button onclick="appendToDisplay('Math.sqrt(')">√</button>
-    <button onclick="appendToDisplay('Math.sin(')">sin</button>
-    <button onclick="appendToDisplay('Math.cos(')">cos</button>
-    <button onclick="appendToDisplay('Math.PI')">π</button>
-  </div>
-  <ul id="cronologia"></ul>
-</section>
 
 <section id="sezione-calendario">
   <h2>📅 Calendario Mensile</h2>
@@ -808,6 +810,144 @@ function aggiornaHome() {
   const motivazione = document.getElementById("motivazione");
   if (motivazione) {
     motivazione.innerHTML = `<h2>${saluto}, ${nome}!</h2><p>${frase}</p>`;
+  }
+}
+</script>
+
+<script>
+function appendToDisplay(val) {
+  const display = document.getElementById("display");
+  if (!display) return;
+  if (val === "=") {
+    try {
+      const expr = display.value
+        .replace(/π/g, Math.PI)
+        .replace(/sqrt/g, "Math.sqrt")
+        .replace(/pow/g, "Math.pow")
+        .replace(/sin/g, "Math.sin")
+        .replace(/cos/g, "Math.cos")
+        .replace(/tan/g, "Math.tan");
+      const result = eval(expr);
+      display.value = result;
+    } catch {
+      display.value = "Errore";
+    }
+  } else if (val === "C") {
+    display.value = "";
+  } else {
+    display.value += val;
+  }
+}
+
+window.addEventListener("load", () => {
+  const container = document.getElementById("calcolatrice");
+  if (!container) return;
+
+  const display = document.createElement("input");
+  display.id = "display";
+  display.type = "text";
+  display.readOnly = true;
+  display.style.width = "100%";
+  display.style.marginBottom = "10px";
+  display.style.fontSize = "20px";
+  container.appendChild(display);
+
+  const buttons = [
+    "7", "8", "9", "/", "C",
+    "4", "5", "6", "*", "(",
+    "1", "2", "3", "-", ")",
+    "0", ".", "=", "+", "π",
+    "sqrt", "pow", "sin", "cos", "tan"
+  ];
+
+  buttons.forEach(p => {
+    const btn = document.createElement("button");
+    btn.textContent = p;
+    btn.onclick = () => appendToDisplay(p);
+    container.appendChild(btn);
+  });
+});
+</script>
+
+
+<script>
+function appendToDisplay(val) {
+  const display = document.getElementById("display");
+  if (!display) return;
+  if (val === "=") {
+    try {
+      const expr = display.value
+        .replace(/π/g, Math.PI)
+        .replace(/sqrt/g, "Math.sqrt")
+        .replace(/pow/g, "Math.pow")
+        .replace(/sin/g, "Math.sin")
+        .replace(/cos/g, "Math.cos")
+        .replace(/tan/g, "Math.tan");
+      const result = eval(expr);
+      display.value = result;
+    } catch {
+      display.value = "Errore";
+    }
+  } else if (val === "C") {
+    display.value = "";
+  } else {
+    display.value += val;
+  }
+}
+</script>
+<section id="sezione-calcolatrice">
+  <h2>🧮 Calcolatrice Scientifica</h2>
+  <div id="calcolatrice" data-scientifica="true">
+    <input id="display" type="text" readonly style="width: 100%; margin-bottom: 10px; font-size: 20px;">
+    <button onclick="appendToDisplay('7')">7</button>
+    <button onclick="appendToDisplay('8')">8</button>
+    <button onclick="appendToDisplay('9')">9</button>
+    <button onclick="appendToDisplay('/')">/</button>
+    <button onclick="appendToDisplay('C')">C</button>
+    <button onclick="appendToDisplay('4')">4</button>
+    <button onclick="appendToDisplay('5')">5</button>
+    <button onclick="appendToDisplay('6')">6</button>
+    <button onclick="appendToDisplay('*')">*</button>
+    <button onclick="appendToDisplay('(')">(</button>
+    <button onclick="appendToDisplay('1')">1</button>
+    <button onclick="appendToDisplay('2')">2</button>
+    <button onclick="appendToDisplay('3')">3</button>
+    <button onclick="appendToDisplay('-')">-</button>
+    <button onclick="appendToDisplay(')')">)</button>
+    <button onclick="appendToDisplay('0')">0</button>
+    <button onclick="appendToDisplay('.')">.</button>
+    <button onclick="appendToDisplay('=')">=</button>
+    <button onclick="appendToDisplay('+')">+</button>
+    <button onclick="appendToDisplay('π')">π</button>
+    <button onclick="appendToDisplay('sqrt')">√</button>
+    <button onclick="appendToDisplay('pow')">^</button>
+    <button onclick="appendToDisplay('sin')">sin</button>
+    <button onclick="appendToDisplay('cos')">cos</button>
+    <button onclick="appendToDisplay('tan')">tan</button>
+  </div>
+</section>
+<script>
+function appendToDisplay(val) {
+  const display = document.getElementById("display");
+  if (!display) return;
+  if (val === "=") {
+    try {
+      const expr = display.value
+        .replace(/π/g, Math.PI)
+        .replace(/sqrt/g, "Math.sqrt")
+        .replace(/pow/g, "Math.pow")
+        .replace(/sin/g, "Math.sin")
+        .replace(/cos/g, "Math.cos")
+        .replace(/tan/g, "Math.tan");
+      const result = eval(expr);
+      display.value = result;
+    } catch {
+      display.value = "Errore";
+    }
+  } else if (val === "C") {
+    display.value = "";
+  } else {
+    display.value += val;
   }
 }
 </script>
