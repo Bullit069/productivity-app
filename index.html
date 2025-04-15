@@ -503,6 +503,7 @@ function aggiornaTimer() {
 
 // Al caricamento, ripristina il timer se era attivo
 window.addEventListener("load", () => {
+  caricaIdee();
   caricaAttivita();
   mostraSezione("home");
   aggiornaHome();
@@ -663,6 +664,7 @@ function generaCalendarioStatico() {
 }
 
 window.addEventListener("load", () => {
+  caricaIdee();
   caricaAttivita();
   generaCalendarioStatico();
 });
@@ -769,12 +771,14 @@ function generaCalendarioStatico() {
 }
 
 window.addEventListener("load", () => {
+  caricaIdee();
   caricaAttivita();
   generaCalendarioStatico();
 });
 </script>
 <script>
 window.addEventListener("load", () => {
+  caricaIdee();
   caricaAttivita();
   try {
     mostraSezione("home");
@@ -840,6 +844,7 @@ function appendToDisplay(val) {
 }
 
 window.addEventListener("load", () => {
+  caricaIdee();
   const container = document.getElementById("calcolatrice");
   if (!container) return;
 
