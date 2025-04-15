@@ -852,13 +852,7 @@ window.addEventListener("load", () => {
   display.style.fontSize = "20px";
   container.appendChild(display);
 
-  const buttons = [
-    "7", "8", "9", "/", "C",
-    "4", "5", "6", "*", "(",
-    "1", "2", "3", "-", ")",
-    "0", ".", "=", "+", "π",
-    "sqrt", "pow", "sin", "cos", "tan"
-  ];
+
 
   buttons.forEach(p => {
     const btn = document.createElement("button");
@@ -870,31 +864,6 @@ window.addEventListener("load", () => {
 </script>
 
 
-<script>
-function appendToDisplay(val) {
-  const display = document.getElementById("display");
-  if (!display) return;
-  if (val === "=") {
-    try {
-      const expr = display.value
-        .replace(/π/g, Math.PI)
-        .replace(/sqrt/g, "Math.sqrt")
-        .replace(/pow/g, "Math.pow")
-        .replace(/sin/g, "Math.sin")
-        .replace(/cos/g, "Math.cos")
-        .replace(/tan/g, "Math.tan");
-      const result = eval(expr);
-      display.value = result;
-    } catch {
-      display.value = "Errore";
-    }
-  } else if (val === "C") {
-    display.value = "";
-  } else {
-    display.value += val;
-  }
-}
-</script>
 <section id="sezione-calcolatrice">
   <h2>🧮 Calcolatrice Scientifica</h2>
   <div id="calcolatrice" data-scientifica="true">
@@ -926,30 +895,5 @@ function appendToDisplay(val) {
     <button onclick="appendToDisplay('tan')">tan</button>
   </div>
 </section>
-<script>
-function appendToDisplay(val) {
-  const display = document.getElementById("display");
-  if (!display) return;
-  if (val === "=") {
-    try {
-      const expr = display.value
-        .replace(/π/g, Math.PI)
-        .replace(/sqrt/g, "Math.sqrt")
-        .replace(/pow/g, "Math.pow")
-        .replace(/sin/g, "Math.sin")
-        .replace(/cos/g, "Math.cos")
-        .replace(/tan/g, "Math.tan");
-      const result = eval(expr);
-      display.value = result;
-    } catch {
-      display.value = "Errore";
-    }
-  } else if (val === "C") {
-    display.value = "";
-  } else {
-    display.value += val;
-  }
-}
-</script>
 </body>
 </html>
