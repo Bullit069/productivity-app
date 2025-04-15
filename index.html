@@ -158,6 +158,33 @@
   }
 }
 </style>
+<style>
+body.scuro {
+  background-color: #1e1e1e;
+  color: white;
+}
+
+body.chiaro {
+  background-color: #f5f5f5;
+  color: #111;
+}
+
+body.chiaro input,
+body.chiaro select,
+body.chiaro textarea {
+  background-color: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+body.scuro input,
+body.scuro select,
+body.scuro textarea {
+  background-color: #2c2c2c;
+  color: #fff;
+  border: 1px solid #444;
+}
+</style>
 </head>
 <body>
 <style>
@@ -219,12 +246,10 @@
 
 <section id="sezione-impostazioni">
   <h2>⚙️ Impostazioni</h2>
-
   <div>
     <label for="username">Nome utente:</label>
     <input type="text" id="username" placeholder="Inserisci il tuo nome">
   </div>
-
   <div>
     <label>Tema:</label>
     <select id="tema">
@@ -232,44 +257,11 @@
       <option value="chiaro">Chiaro</option>
     </select>
   </div>
-
-  <div>
-    <label>Sezioni da mostrare:</label><br>
-    <label><input type="checkbox" class="toggle-sezione" data-sezione="sezione-pomodoro" checked> Pomodoro</label><br>
-    <label><input type="checkbox" class="toggle-sezione" data-sezione="sezione-calcolatrice" checked> Calcolatrice</label><br>
-    <label><input type="checkbox" class="toggle-sezione" data-sezione="sezione-ideaboard" checked> Idea Board</label>
-  </div>
-
-  <div>
-    <label for="orarioNotifica">Notifica giornaliera:</label>
-    <input type="time" id="orarioNotifica">
-    <input type="text" id="messaggioNotifica" placeholder="Messaggio della notifica">
-    <button onclick="salvaNotifica()">Attiva</button>
+  <div style="margin-top: 20px; color: gray; font-style: italic;">
+    🚧 Altre funzionalità in arrivo... stay tuned!
   </div>
 </section>
-
 <script>
-function caricaImpostazioni() {
-  const nome = localStorage.getItem("username") || "";
-  const tema = localStorage.getItem("tema") || "scuro";
-  document.getElementById("username").value = nome;
-  document.getElementById("tema").value = tema;
-  document.body.className = tema;
-
-  document.querySelectorAll(".toggle-sezione").forEach(cb => {
-    const sezione = cb.dataset.sezione;
-    const visibile = localStorage.getItem("visibile_" + sezione);
-    cb.checked = visibile !== "false";
-    const sezioneElem = document.getElementById(sezione);
-    if (sezioneElem) sezioneElem.style.display = cb.checked ? "block" : "none";
-  });
-
-  const orario = localStorage.getItem("orarioNotifica");
-  if (orario) document.getElementById("orarioNotifica").value = orario;
-  const msg = localStorage.getItem("messaggioNotifica");
-  if (msg) document.getElementById("messaggioNotifica").value = msg;
-}
-
 document.getElementById("username").addEventListener("input", () => {
   const nome = document.getElementById("username").value;
   localStorage.setItem("username", nome);
@@ -282,63 +274,14 @@ document.getElementById("tema").addEventListener("change", () => {
   localStorage.setItem("tema", tema);
 });
 
-document.querySelectorAll(".toggle-sezione").forEach(cb => {
-  cb.addEventListener("change", () => {
-    const sezione = cb.dataset.sezione;
-    const visibile = cb.checked;
-    const sezioneElem = document.getElementById(sezione);
-    if (sezioneElem) sezioneElem.style.display = visibile ? "block" : "none";
-    localStorage.setItem("visibile_" + sezione, visibile);
-  });
-});
-
-function aggiornaHome() {
-  const nome = localStorage.getItem("username") || "utente";
-  const saluto = new Date().getHours() < 18 ? "Buongiorno" : "Buonasera";
-  const frasi = ["Non fermarti!", "Hai già fatto tanto!", "Un passo alla volta!", "Credi in te stesso!"];
-  const frase = frasi[Math.floor(Math.random() * frasi.length)];
-  document.getElementById("motivazione").innerHTML = `<h2>${saluto}, ${nome}!</h2><p>${frase}</p>`;
+function caricaImpostazioni() {
+  const nome = localStorage.getItem("username") || "";
+  const tema = localStorage.getItem("tema") || "scuro";
+  document.getElementById("username").value = nome;
+  document.getElementById("tema").value = tema;
+  document.body.className = tema;
 }
-
-function salvaNotifica() {
-  const orario = document.getElementById("orarioNotifica").value;
-  const messaggio = document.getElementById("messaggioNotifica").value;
-  localStorage.setItem("orarioNotifica", orario);
-  localStorage.setItem("messaggioNotifica", messaggio);
-  avviaNotificaOraria();
-}
-
-function avviaNotificaOraria() {
-  if (!("Notification" in window)) return;
-  Notification.requestPermission().then(perm => {
-    if (perm === "granted") {
-      const orario = localStorage.getItem("orarioNotifica");
-      const messaggio = localStorage.getItem("messaggioNotifica");
-      if (!orario || !messaggio) return;
-
-      const [h, m] = orario.split(":").map(Number);
-      const now = new Date();
-      const target = new Date();
-      target.setHours(h, m, 0, 0);
-      if (target <= now) target.setDate(target.getDate() + 1);
-
-      const timeout = target.getTime() - now.getTime();
-      setTimeout(() => {
-        new Notification(messaggio);
-        salvaNotifica(); // Riprogramma la notifica per il giorno dopo
-      }, timeout);
-    }
-  });
-}
-
-window.addEventListener("load", () => {
-  mostraSezione("home");
-  aggiornaHome();
-  caricaImpostazioni();
-  avviaNotificaOraria();
-});
 </script>
-
 <section id="sezione-todo">
   <h2>📋 To-Do List</h2>
   <input type="text" id="attivita" placeholder="Scrivi un'attività">
@@ -370,7 +313,27 @@ window.addEventListener("load", () => {
 <section id="sezione-calcolatrice">
   <h2>🧮 Calcolatrice Scientifica</h2>
   <input type="text" id="display" readonly>
-  <div id="calcolatrice">
+  <div style="text-align: center; margin: 10px 0;">
+  <button onclick="toggleCalcolatrice()">🔁 Cambia modalità calcolatrice</button>
+</div>
+<script>
+function toggleCalcolatrice() {
+  const container = document.getElementById("calcolatrice");
+  const scientifica = container.dataset.scientifica === "true";
+  container.innerHTML = "";
+  container.dataset.scientifica = (!scientifica).toString();
+  const base = ["7", "8", "9", "/", "4", "5", "6", "*", "1", "2", "3", "-", "0", ".", "=", "+", "C"];
+  const avanzata = base.concat(["sqrt", "pow", "sin", "cos", "tan", "(", ")", "π"]);
+  const pulsanti = scientifica ? base : avanzata;
+  pulsanti.forEach(p => {
+    const btn = document.createElement("button");
+    btn.textContent = p;
+    btn.onclick = () => appendToDisplay(p);
+    container.appendChild(btn);
+  });
+}
+</script>
+<div id="calcolatrice" data-scientifica="true">
     <button onclick="clearDisplay()">C</button>
     <button onclick="appendToDisplay('(')">(</button>
     <button onclick="appendToDisplay(')')">)</button>
@@ -465,20 +428,25 @@ window.caricaAttivita = function () {
   lista.innerHTML = "";
   const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
 
-  attivita.forEach((dati) => {
+  attivita.forEach((dati, index) => {
     const li = document.createElement("li");
+    if (dati.completata) li.classList.add("completata");
     li.innerHTML = `<strong>${dati.testo}</strong><br>
       <small>Scadenza: ${dati.scadenza || "Nessuna"}</small><br>
       <span style="color: green;">${dati.categoria || ""}</span>`;
-    li.addEventListener("click", () => li.classList.toggle("completata"));
-    li.addEventListener("dblclick", () => {
-      const index = attivita.indexOf(dati);
-      if (index !== -1) {
-        attivita.splice(index, 1);
-        localStorage.setItem("attivita", JSON.stringify(attivita));
-        caricaAttivita();
-      }
+
+    li.addEventListener("click", () => {
+      dati.completata = !dati.completata;
+      localStorage.setItem("attivita", JSON.stringify(attivita));
+      caricaAttivita();
     });
+
+    li.addEventListener("dblclick", () => {
+      attivita.splice(index, 1);
+      localStorage.setItem("attivita", JSON.stringify(attivita));
+      caricaAttivita();
+    });
+
     lista.appendChild(li);
   });
 };
