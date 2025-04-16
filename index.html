@@ -277,6 +277,12 @@ body.scuro textarea {
 </div>
 
 <div id="navbar">
+  <section id="sezione-home">
+    <div id="motivazione" style="text-align: center;">
+      <h2 id="saluto"></h2>
+      <p id="frase-motivazionale" style="font-size: 18px; margin-top: 10px;"></p>
+    </div>
+  </section>  
   <button onclick="mostraSezione('home')">🏠 Home</button>
   <button onclick="mostraSezione('todo')">📝 To-Do</button>
   <button onclick="mostraSezione('pomodoro')">⏱️ Pomodoro</button>
@@ -284,11 +290,6 @@ body.scuro textarea {
   <button onclick="mostraSezione('calendario')">📅 Calendario</button>
   <button onclick="mostraSezione('ideaboard')">💡 Idee</button>
 </div>
-
-<section id="sezione-home">
-  <h2 id="saluto">Ciao!</h2>
-  <p id="frase-motivazionale">Preparati a dare il massimo oggi.</p>
-</section>
 
 
 <section id="sezione-impostazioni">
@@ -304,6 +305,35 @@ body.scuro textarea {
       <option value="chiaro">Chiaro</option>
     </select>
   </div>
+  
+  <!-- Form login admin -->
+<div id="login-admin-form" style="margin-top: 20px;">
+  <h3>🔐 Login Amministratore</h3>
+  <input type="email" id="admin-email" placeholder="Email admin" style="margin-bottom: 5px; width: 100%;"><br>
+  <input type="password" id="admin-password" placeholder="Password" style="margin-bottom: 10px; width: 100%;"><br>
+  <button onclick="accediComeAdmin()">Accedi</button>
+</div>
+
+<script>
+function accediComeAdmin() {
+  const email = document.getElementById("admin-email").value.trim();
+  const password = document.getElementById("admin-password").value.trim();
+  if (email && password) {
+    loginAdmin(email, password);
+  } else {
+    alert("Inserisci email e password.");
+  }
+}
+
+// Nasconde il form se l'utente è già loggato come admin
+document.addEventListener("DOMContentLoaded", () => {
+  const ruoloSalvato = localStorage.getItem("ruolo");
+  if (ruoloSalvato === "admin") {
+    const form = document.getElementById("login-admin-form");
+    if (form) form.style.display = "none";
+  }
+});
+</script>
   <div style="margin-top: 20px; color: gray; font-style: italic;">
     🚧 Altre funzionalità in arrivo... stay tuned!
   </div>
@@ -381,6 +411,7 @@ window.mostraSezione = function(nome) {
   if (selezionata) selezionata.style.display = "block";
 }
 </script>
+  
 <script>
 window.mostraMotivazione = function () {
   const ora = new Date().getHours();
@@ -796,27 +827,7 @@ window.addEventListener("load", () => {
   }
 });
 </script>
-<script>
-function aggiornaHome() {
-  const nome = localStorage.getItem("username") || "amico";
-  const saluto = new Date().getHours() < 18 ? "Buongiorno" : "Buonasera";
-  const frasi = [
-    "Credi in te stesso.",
-    "Un passo alla volta.",
-    "Ogni giorno è una nuova occasione.",
-    "Non mollare, sei più forte di quanto pensi.",
-    "Fai oggi qualcosa che il tuo domani ringrazierà.",
-    "La costanza è la chiave del cambiamento.",
-    "Ogni piccola azione conta.",
-    "Sii orgoglioso di ogni tuo progresso."
-  ];
-  const frase = frasi[Math.floor(Math.random() * frasi.length)];
-  const motivazione = document.getElementById("motivazione");
-  if (motivazione) {
-    motivazione.innerHTML = `<h2>${saluto}, ${nome}!</h2><p>${frase}</p>`;
-  }
-}
-</script>
+
 
 <script>
 function appendToDisplay(val) {
@@ -900,5 +911,95 @@ window.addEventListener("load", () => {
     <button onclick="appendToDisplay('tan')">tan</button>
   </div>
 </section>
+<!-- Firebase App (core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+<script>
+  // Configurazione Firebase del tuo progetto
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYCaKsLO-rX5Mu2kxUgj4NDZAt2w3Ul1Q",
+    authDomain: "productivityapp-70bcc.firebaseapp.com",
+    projectId: "productivityapp-70bcc",
+    storageBucket: "productivityapp-70bcc.appspot.com",
+    messagingSenderId: "673730671473",
+    appId: "1:673730671473:web:bfb6ce549a27eb1cb17cd0"
+  };
+
+  // Inizializza Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  let ruolo = "utente"; // valore di default
+
+  // Funzione di login per admin
+  function loginAdmin(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Login admin riuscito:", user.email);
+        ruolo = "admin";
+        localStorage.setItem("ruolo", "admin");
+        location.reload(); // ricarica l'app
+      })
+      .catch((error) => {
+        console.error("Errore login admin:", error.message);
+        alert("Accesso fallito. Controlla le credenziali.");
+      });
+  }
+
+  // Funzione login anonimo per utenti normali
+  function loginUtente() {
+    auth.signInAnonymously()
+      .then(() => {
+        console.log("Accesso anonimo riuscito");
+        ruolo = "utente";
+        localStorage.setItem("ruolo", "utente");
+      })
+      .catch((error) => {
+        console.error("Errore login anonimo:", error.message);
+      });
+  }
+
+  // Controlla se l'utente è già loggato
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      if (user.email === "paolonicola95@gmail.com") {
+        ruolo = "admin";
+      } else {
+        ruolo = user.isAnonymous ? "utente" : "admin";
+      }
+      localStorage.setItem("ruolo", ruolo);
+      console.log("Utente connesso:", ruolo);
+    } else {
+      loginUtente(); // login automatico per nuovi utenti
+    }
+  });
+</script>
+<script>
+  function aggiornaHome() {
+    const ora = new Date().getHours();
+    const nome = localStorage.getItem("username") || "ci siamo";
+    const saluto =
+      ora < 13 ? "Buongiorno" :
+      ora < 18 ? "Buon pomeriggio" : "Buonasera";
+  
+    const frasi = [
+      "Ogni giorno è una nuova opportunità.",
+      "Non smettere mai di credere in te stesso.",
+      "Anche un piccolo passo è un passo avanti.",
+      "La costanza batte il talento.",
+      "Il successo è la somma di piccoli sforzi ripetuti giorno dopo giorno.",
+      "Agisci con determinazione, non aspettare la motivazione.",
+      "C'è sempre un motivo per ricominciare.",
+      "Se puoi sognarlo, puoi farlo.",
+      "Fallo oggi, il domani non è garantito."
+    ];
+  
+    const frase = frasi[Math.floor(Math.random() * frasi.length)];
+    document.getElementById("saluto").innerText = `${saluto}, ${nome}! 👋`;
+    document.getElementById("frase-motivazionale").innerText = frase;
+  }
+  </script>
 </body>
 </html>
