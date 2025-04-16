@@ -432,7 +432,8 @@ window.mostraMotivazione = function () {
   document.getElementById("saluto").innerText = saluto + " 👋";
   document.getElementById("frase-motivazionale").innerText = frase;
 };
-</script><script>
+</script>
+<script>
 window.aggiungiAttivita = function () {
   const testo = document.getElementById("attivita").value.trim();
   const scadenza = document.getElementById("scadenza").value;
@@ -451,20 +452,33 @@ window.aggiungiAttivita = function () {
   caricaAttivita();
 };
 
-window.caricaAttivita = function () {
+function caricaAttivita() {
   const lista = document.getElementById("lista-attivita");
-  lista.innerHTML = "";
-  const attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+  if (!lista) return;
 
-  attivita.forEach((dati, index) => {
+  let attivita = JSON.parse(localStorage.getItem("attivita")) || [];
+
+  // Ordina per data di scadenza crescente (null/"" vanno in fondo)
+  attivita.sort((a, b) => {
+    if (!a.scadenza) return 1;
+    if (!b.scadenza) return -1;
+    return new Date(a.scadenza) - new Date(b.scadenza);
+  });
+
+  lista.innerHTML = "";
+
+  attivita.forEach((item, index) => {
     const li = document.createElement("li");
-    if (dati.completata) li.classList.add("completata");
-    li.innerHTML = `<strong>${dati.testo}</strong><br>
-      <small>Scadenza: ${dati.scadenza || "Nessuna"}</small><br>
-      <span style="color: green;">${dati.categoria || ""}</span>`;
+    li.innerHTML = `<strong>${item.testo}</strong><br>
+    <small>Scadenza: ${item.scadenza || "Nessuna"}</small><br>
+    <span style="color: green;">${item.categoria || ""}</span>`;
+
+    if (item.completata) {
+      li.style.textDecoration = "line-through";
+    }
 
     li.addEventListener("click", () => {
-      dati.completata = !dati.completata;
+      item.completata = !item.completata;
       localStorage.setItem("attivita", JSON.stringify(attivita));
       caricaAttivita();
     });
@@ -477,8 +491,9 @@ window.caricaAttivita = function () {
 
     lista.appendChild(li);
   });
-};
-</script><script>
+}
+</script>
+<script>
 let timer;
 
 window.avviaTimer = function () {
